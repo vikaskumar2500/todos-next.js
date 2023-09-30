@@ -1,0 +1,45 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  background-color: whitesmoke;
+  border: 1px solid rgba(0, 0, 0, 0.221);
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 1rem;
+}
+
+.form input {
+  outline: none;
+  padding: 5px;
+  background-color: whitesmoke;
+  color: black;
+  border: none;
+  border-bottom: 1px solid rgba(174, 167, 167, 0.386);
+}
+
+.form .buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 8px;
+}
+
+.form button {
+  padding: 5px 20px;
+  border-radius: 5px;
+  outline: none;
+  border: none;
+  color: white;
+}
+
+.form .buttons .cancel-button {
+  background-color: rgba(130, 47, 47, 0.8);
+}
+
+.form .buttons .add-button {
+  background-color: rgba(137, 43, 226, 0.398);
+}
+
+.active {
+  background-color: rgb(137, 43, 226) !important;
+}

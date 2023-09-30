@@ -1,0 +1,40 @@
+.item {
+  position: relative;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-right: 10px;
+  border-bottom: 1px solid rgba(192, 169, 169, 0.457);
+  cursor: pointer;
+}
+
+.item:hover {
+  background-color: whitesmoke;
+  .description {
+    opacity: 0;
+  }
+  .delete {
+    opacity: 1;
+  }
+}
+
+.item .delete {
+  position: absolute;
+  right: 10px;
+  opacity: 0;
+  z-index: 10;
+}
+
+.item button {
+  font-size: 0.8rem !important;
+}
+.item svg {
+  font-size: medium;
+}
+
+.item .item-left {
+  display: flex;
+  align-items: center;
+}
