@@ -4,24 +4,6 @@ import React, { useState } from "react";
 import CompletedTodoList from "../../../components/Todos/CompletedTodoList";
 import { MongoClient } from "mongodb";
 
-const DUMMY_COMPLETED = [
-  {
-    id: "t1",
-    text: "Revision DSA",
-    description: "With in two weeks",
-  },
-  {
-    id: "t2",
-    text: "Revision React.js",
-    description: "With in two days",
-  },
-  {
-    id: "t3",
-    text: "Revision next.js",
-    description: "With in four weeks",
-  },
-];
-
 const CompletedTodos = ({ completedTodos }) => {
   const [completedTask, setCompletedTask] = useState(completedTodos);
   const completedTaskHandler = async (id) => {
@@ -40,10 +22,15 @@ const CompletedTodos = ({ completedTodos }) => {
     }
   };
   return (
-    <CompletedTodoList
-      onComplete={completedTaskHandler}
-      completed={completedTask}
-    />
+    <React.Fragment>
+      <h3 style={{ marginLeft: "14px", opacity: "0.6", color: "blueviolet" }}>
+        Completed Task
+      </h3>
+      <CompletedTodoList
+        onComplete={completedTaskHandler}
+        completed={completedTask}
+      />
+    </React.Fragment>
   );
 };
 

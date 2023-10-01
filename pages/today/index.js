@@ -77,8 +77,20 @@ const Today = ({ todosList }) => {
       console.log(error);
     }
   };
+
+  const date = new Date();
+  const day = date.toLocaleString("en-US", { day: "numeric" });
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const weekday = date.toLocaleString("en-US", { weekday: "short" });
+
+  const dateTimeStamp = `${weekday} ${day} ${month}`;
+
   return (
     <React.Fragment>
+      <div className={styles.heading}>
+        <h3>Today</h3>
+        <span>{dateTimeStamp}</span>
+      </div>
       <TodayTodoList
         onComplete={completedTaskHandler}
         onDeleteButton={deleteButtonHelper}
@@ -102,7 +114,6 @@ const Today = ({ todosList }) => {
     </React.Fragment>
   );
 };
-
 
 export const getStaticProps = async () => {
   const client = await MongoClient.connect(
