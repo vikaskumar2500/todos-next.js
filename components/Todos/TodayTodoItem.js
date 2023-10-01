@@ -16,19 +16,21 @@ const TodayTodoItem = (props) => {
   const deleteButtonHelper = (id) => {
     props.onDeleteButton(id);
   };
-  const completedTaskHandler = () => {
+  const completedTaskHandler = (id) => {
     props.onComplete({
       id,
+      completed: true,
       text,
       description,
-    });
+    }, id);
+
   };
   return (
     <div key={id} className={styles.item}>
       <div className={styles["item-left"]}>
         <IconButton
           className={styles.icon}
-          onClick={completedTaskHandler}
+          onClick={completedTaskHandler.bind(null, id)}
           onMouseOverCapture={() => setIsComplete(true)}
           onMouseOutCapture={() => setIsComplete(false)}
         >

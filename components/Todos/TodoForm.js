@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import styles from "./TodoForm.module.css";
+import { v4 as uuidv4 } from "uuid";
 
 const TodoForm = (props) => {
   const [active, setActive] = useState(false);
@@ -9,18 +10,23 @@ const TodoForm = (props) => {
   const enteredTextRef = useRef();
   const enteredDescriptionRef = useRef();
 
-  const formSubmitHandler = (event) => {
+  const formSubmitHandler = async (event) => {
     event.preventDefault();
     const text = enteredTextRef.current.value;
     const description = enteredDescriptionRef.current.value;
-    props.onAddTask({
-      id: text,
+
+    const enteredFormData = {
+      id: uuidv4(),
+      completed: false,
       text,
       description,
-    });
-    setActive(false);
+    };
+
+    props.onAddTask(enteredFormData);
+
     enteredTextRef.current.value = "";
     enteredDescriptionRef.current.value = "";
+    setActive(false);
   };
   return (
     <form className={styles.form} onSubmit={formSubmitHandler}>

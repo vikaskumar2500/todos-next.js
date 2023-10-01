@@ -4,29 +4,13 @@ import TodayTodoList from "../../components/Todos/TodayTodoList";
 import TodoForm from "../../components/Todos/TodoForm";
 import { Add } from "@mui/icons-material";
 import styles from "./index.module.css";
+import { MongoClient } from "mongodb";
+import { useRouter } from "next/router";
 
-const DUMMY_TODOS = [
-  {
-    id: "t1",
-    text: "Revision DSA",
-    description: "With in two weeks",
-  },
-  {
-    id: "t2",
-    text: "Revision React.js",
-    description: "With in two days",
-  },
-  {
-    id: "t3",
-    text: "Revision next.js",
-    description: "With in four weeks",
-  },
-];
-
-const Today = () => {
+const Today = ({ todosList }) => {
   const [show, setShow] = useState(false);
-  const [data, setData] = useState(DUMMY_TODOS);
-  const [completedTodos, setCompletedTodos] = useState([]);
+  const [data, setData] = useState(todosList);
+
   const showButtonHandler = () => {
     setShow(true);
   };
@@ -35,19 +19,64 @@ const Today = () => {
     setShow(false);
   };
 
-  const addTaskHandler = (enteredFormData) => {
+  const addTaskHandler = async (enteredFormData) => {
     setData((prev) => [...prev, enteredFormData]);
+    try {
+      const response = await fetch("/api/today", {
+        method: "POST",
+        body: JSON.stringify(enteredFormData),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+    } catch (error) {
+      alert(error);
+      console.log(error);
+    }
   };
 
-  const deleteButtonHelper = (id) => {
-    console.log("Delete button running!");
-    setData((prev) => prev.filter((data) => data.id !== id));
+  const deleteButtonHelper = async (id) => {
+    setData((prev) => prev.filter((item) => item.id !== id));
+    try {
+      const response = await fetch(`/api/today?id=${id.toString()}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+    } catch (error) {
+      alert(error);
+      console.log(error);
+    }
   };
 
-  const completedTaskHandler=(todo)=> {
-    setCompletedTodos(prev=> [...prev, todo]);
-    setData((prev) => prev.filter((data) => data.id !== todo.id));
-  }
+  const completedTaskHandler = async (todo, id) => {
+    setData((prev) => prev.filter((item) => item.id !== id));
+
+    try {
+      const deleteResponse = await fetch(`/api/today?id=${id.toString()}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const deteledData = await deleteResponse.json();
+      if (!deleteResponse.ok) throw new Error(deteledData.error);
+
+      const postResponse = await fetch("/api/today", {
+        method: "POST",
+        body: JSON.stringify(todo),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const postedData = await postResponse.json();
+      if (!postResponse.ok) throw new Error(data.error);
+    } catch (error) {
+      alert(error);
+      console.log(error);
+    }
+  };
   return (
     <React.Fragment>
       <TodayTodoList
@@ -72,6 +101,32 @@ const Today = () => {
       )}
     </React.Fragment>
   );
+};
+
+
+export const getStaticProps = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://vikas:todos@cluster0.hkt90qy.mongodb.net/?retryWrites=true&w=majority&appName=todos"
+  );
+  const db = client.db();
+  const todosCollection = db.collection("todos");
+
+  const todos = await todosCollection.find().toArray();
+
+  client.close();
+
+  const filteredTodos = todos.filter((todo) => todo.completed === false);
+
+  return {
+    props: {
+      todosList: filteredTodos.map((todo) => ({
+        id: todo._id.toString(),
+        text: todo.text,
+        description: todo.description,
+      })),
+      revalidate: 3,
+    },
+  };
 };
 
 export default Today;
