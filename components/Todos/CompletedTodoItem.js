@@ -7,14 +7,16 @@ import { IconButton } from "@mui/material";
 import React from "react";
 import styles from "./CompletedTodoItem.module.css";
 
-const CompletedTodoItem = ({ id, text, description, onComplete }) => {
+const CompletedTodoItem = (props) => {
+  const { _id, id, text, description, onComplete } = props;
+
   const deleteButtonHelper = (id) => {
     onComplete(id);
   };
   return (
-    <div key={id} className={styles.complete} title="Completed Task">
+    <div key={_id} className={styles.complete} title="Completed Task">
       <div className={styles["complete-left"]}>
-        <IconButton className={styles.icon} >
+        <IconButton className={styles.icon}>
           <TaskAltOutlined />
         </IconButton>
         <div>{text}</div>

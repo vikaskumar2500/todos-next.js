@@ -1,11 +1,11 @@
 "use client";
+
 import React, { useState } from "react";
 import TodayTodoList from "../../components/Todos/TodayTodoList";
 import TodoForm from "../../components/Todos/TodoForm";
 import { Add } from "@mui/icons-material";
 import styles from "./index.module.css";
 import { MongoClient } from "mongodb";
-import { useRouter } from "next/router";
 
 const Today = ({ todosList }) => {
   const [show, setShow] = useState(false);
@@ -20,7 +20,7 @@ const Today = ({ todosList }) => {
   };
 
   const addTaskHandler = async (enteredFormData) => {
-    setData((prev) => [...prev, enteredFormData]);
+    setData((prev) => [enteredFormData, ...prev]);
     try {
       const response = await fetch("/api/today", {
         method: "POST",
@@ -28,8 +28,8 @@ const Today = ({ todosList }) => {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const postData = await response.json();
+      if (!response.ok) throw new Error(postData.error);
     } catch (error) {
       alert(error);
       console.log(error);
@@ -39,7 +39,7 @@ const Today = ({ todosList }) => {
   const deleteButtonHelper = async (id) => {
     setData((prev) => prev.filter((item) => item.id !== id));
     try {
-      const response = await fetch(`/api/today?id=${id.toString()}`, {
+      const response = await fetch(`/api/today/?id=${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
@@ -52,26 +52,17 @@ const Today = ({ todosList }) => {
     }
   };
 
-  const completedTaskHandler = async (todo, id) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
-
+  const completedTaskHandler = async (todo) => {
+    setData((prev) => prev.filter((item) => item.id !== todo.id));
     try {
-      const deleteResponse = await fetch(`/api/today?id=${id.toString()}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const deteledData = await deleteResponse.json();
-      if (!deleteResponse.ok) throw new Error(deteledData.error);
-
-      const postResponse = await fetch("/api/today", {
-        method: "POST",
+      const updateResponse = await fetch(`/api/today?id=${todo.id}`, {
+        method: "PUT",
         body: JSON.stringify(todo),
         headers: { "Content-Type": "application/json" },
       });
 
-      const postedData = await postResponse.json();
-      if (!postResponse.ok) throw new Error(data.error);
+      const updatedData = await updateResponse.json();
+      if (!updateResponse.ok) throw new Error(updatedData.error);
     } catch (error) {
       alert(error);
       console.log(error);
@@ -80,16 +71,16 @@ const Today = ({ todosList }) => {
 
   const date = new Date();
   const day = date.toLocaleString("en-US", { day: "numeric" });
-  const month = date.toLocaleString("en-US", { month: "short" });
   const weekday = date.toLocaleString("en-US", { weekday: "short" });
+  const month = date.toLocaleString("en-US", { month: "short" });
 
-  const dateTimeStamp = `${weekday} ${day} ${month}`;
+  const currentTimer = `${weekday} ${day} ${month}`;
 
   return (
     <React.Fragment>
       <div className={styles.heading}>
         <h3>Today</h3>
-        <span>{dateTimeStamp}</span>
+        <span>{currentTimer}</span>
       </div>
       <TodayTodoList
         onComplete={completedTaskHandler}
@@ -115,27 +106,26 @@ const Today = ({ todosList }) => {
   );
 };
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
   const client = await MongoClient.connect(
     "mongodb+srv://vikas:todos@cluster0.hkt90qy.mongodb.net/?retryWrites=true&w=majority&appName=todos"
   );
   const db = client.db();
   const todosCollection = db.collection("todos");
 
-  const todos = await todosCollection.find().toArray();
+  const todos = await todosCollection.find({ completed: false }).toArray();
 
   client.close();
 
-  const filteredTodos = todos.filter((todo) => todo.completed === false);
-
   return {
     props: {
-      todosList: filteredTodos.map((todo) => ({
-        id: todo._id.toString(),
+      todosList: todos.map((todo) => ({
+        _id: todo._id.toString(),
+        id: todo.id,
+        completed: todo.completed,
         text: todo.text,
         description: todo.description,
       })),
-      revalidate: 3,
     },
   };
 };

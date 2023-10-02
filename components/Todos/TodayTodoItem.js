@@ -11,19 +11,19 @@ import {
 
 const TodayTodoItem = (props) => {
   const [isComplete, setIsComplete] = useState(false);
-  const { id, text, description } = props;
+  const { _id, id, text, description } = props;
 
   const deleteButtonHelper = (id) => {
     props.onDeleteButton(id);
   };
   const completedTaskHandler = (id) => {
     props.onComplete({
+      _id,
       id,
       completed: true,
       text,
       description,
-    }, id);
-
+    });
   };
   return (
     <div key={id} className={styles.item}>

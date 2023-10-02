@@ -28,10 +28,9 @@
 .heading {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 10px;
   opacity: 0.8;
 }
 .heading h3 {
   color: blueviolet;
-  
 }

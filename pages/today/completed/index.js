@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import CompletedTodoList from "../../../components/Todos/CompletedTodoList";
 import { MongoClient } from "mongodb";
+import { TaskAltOutlined } from "@mui/icons-material";
 
 const CompletedTodos = ({ completedTodos }) => {
   const [completedTask, setCompletedTask] = useState(completedTodos);
+
   const completedTaskHandler = async (id) => {
     setCompletedTask((prev) => prev.filter((todo) => todo.id !== id));
     try {
-      const response = await fetch(`/api/today?id=${id.toString()}`, {
+      const response = await fetch(`/api/today?id=${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
@@ -23,38 +25,46 @@ const CompletedTodos = ({ completedTodos }) => {
   };
   return (
     <React.Fragment>
-      <h3 style={{ marginLeft: "14px", opacity: "0.6", color: "blueviolet" }}>
-        Completed Task
+      <h3
+        style={{
+          marginLeft: "14px",
+          opacity: "0.6",
+          color: "blueviolet",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        Completed Task <TaskAltOutlined />
       </h3>
+
       <CompletedTodoList
         onComplete={completedTaskHandler}
-        completed={completedTask}
+        completedTodos={completedTask}
       />
     </React.Fragment>
   );
 };
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
   const client = await MongoClient.connect(
     "mongodb+srv://vikas:todos@cluster0.hkt90qy.mongodb.net/?retryWrites=true&w=majority&appName=todos"
   );
   const db = client.db();
   const todosCollection = db.collection("todos");
 
-  const todos = await todosCollection.find().toArray();
+  const todos = await todosCollection.find({ completed: true }).toArray();
 
   client.close();
 
-  const filteredTodos = todos.filter((todo) => todo.completed === true);
-
   return {
     props: {
-      completedTodos: filteredTodos.map((todo) => ({
-        id: todo._id.toString(),
+      completedTodos: todos.map((todo) => ({
+        _id: todo._id.toString(),
+        id: todo.id,
+        completed: todo.completed,
         text: todo.text,
         description: todo.description,
       })),
-      revalidate: 1,
     },
   };
 };

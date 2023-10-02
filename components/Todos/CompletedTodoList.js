@@ -1,10 +1,10 @@
 import React from "react";
 import CompletedTodoItem from "./CompletedTodoItem";
 
-const CompletedTodoList = ({ completed, onComplete }) => {
+const CompletedTodoList = ({ completedTodos, onComplete }) => {
   return (
     <div>
-      {completed.map((completedItem) => (
+      {completedTodos.map((completedItem) => (
         <CompletedTodoItem
           onComplete={onComplete}
           key={completedItem.id}
